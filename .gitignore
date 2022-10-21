@@ -2,3 +2,4 @@ venv
 __pycache__
 *zip
 chromedriver_linux64
+*sqlite3
