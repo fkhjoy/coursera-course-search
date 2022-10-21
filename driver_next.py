@@ -8,10 +8,23 @@ from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-  
-#url of the page we want to scrape
 
+baseUrl = "https://www.coursera.org/"
 
+def get_course_info(url_):
+    url_ = baseUrl + url_
+    page = requests.get(url_)
+    soup = BeautifulSoup(page.text, 'html.parser')
+    star = soup.find('span', attrs={"data-test": "number-star-rating"}).text.replace("stars", "")
+    students = soup.find('div', attrs={"class": "_1fpiay2"}).text.replace(" already enrolled","") 
+    title = soup.find('h1', attrs={"data-e2e": "xdp-banner-title"}).text
+    description = soup.find('div', attrs={"data-e2e":"description"}).text
+    url_ += "#instructors"
+    page = requests.get(url_)
+    soup = BeautifulSoup(page.text, 'html.parser')
+    instructor = soup.find('h3', attrs={"class": "instructor-name headline-3-text bold"}).text
+    provider = soup.find('h3', attrs={"class": "headline-4-text bold rc-Partner__title"}).text
+    return title, description, star, instructor, provider, students
 
 for x in range(1, 3):
     url = f"https://www.coursera.org/search?query=data%20science&page={x}&index=prod_all_launched_products_term_optimization_skills_test_for_precise_xdp_variant"
@@ -25,8 +38,7 @@ for x in range(1, 3):
     # this is just to ensure that the page is loaded
     time.sleep(2) 
     
-    html = driver.page_source
-    
+    html = driver.page_source  
     # this renders the JS code and stores all
     # of the information in static HTML code.
     
