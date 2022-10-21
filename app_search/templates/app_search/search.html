@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <style>
+            table, th, td, h1 {
+                border: 1px solid black;
+                border-collapse: collapse;
+                text-align: center;
+                align-content: center;
+            }
+
+            table {
+                margin-left:auto;margin-right:auto;
+            }
+
+            body {
+                background-color: 	#D3D3D3;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <h1>Coursera Course Search</h1>
+
+        <form action="">
+            <input type="text" name="search" placeholder="Search by course">
+            <input type="text" name="total" placeholder="Total pages to search">
+            <input type="submit" value="Search/Refresh">
+        </form>
+        <a href="#" class="button">Download</a>
+        {% if data %}
+            <table>
+                <thead>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Rating</th>
+                    <th>Instructor</th>
+                    <th>Course Provider</th>
+                    <th>Enrolled Students</th>
+                                        
+                </thead>
+
+                <tbody>
+                    {% for d in data %}
+                    <tr>
+                        <td>{{ d.0 }}</td>
+                        <td>{{ d.1 | slice:":65" }}....</td>
+                        <td>{{ d.2 }}</td>
+                        <td>{{ d.3 }}</td>
+                        <td>{{ d.4 }}</td>
+                        <td>{{ d.5 }}</td>
+                    {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        {% else %} 
+            <p>No Data</p>
+        {% endif %}
+
+    </body>
+</html>

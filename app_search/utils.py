@@ -9,34 +9,65 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
-baseUrl = "https://www.coursera.org/"
+baseUrl = "https://www.coursera.org"
 
 def get_course_info(url_):
+
     url = baseUrl + url_
     page = requests.get(url)
     soup = BeautifulSoup(page.text, 'html.parser')
-    star = soup.find('span', attrs={"data-test": "number-star-rating"}).text.replace("stars", "")
-    students = soup.find('div', attrs={"class": "_1fpiay2"}).text.replace(" already enrolled","") 
-    title = soup.find('h1', attrs={"data-e2e": "xdp-banner-title"}).text
-    description = soup.find('div', attrs={"data-e2e":"description"}).text
+    n_count = 0
+    try:
+        star = soup.find('span', attrs={"data-test": "number-star-rating"}).text.replace("stars", "")
+    except:
+        n_count += 1
+        star = "N/A" 
+    try:
+        students = soup.find('div', attrs={"class": "_1fpiay2"}).text.replace(" already enrolled","") 
+    except:
+        n_count += 1
+        students = "N/A"
+    try:
+        title = soup.find('h1', attrs={"data-e2e": "xdp-banner-title"}).text
+    except:
+        n_count += 1
+        title = "N/A"
+    try:
+        description = soup.find('div', attrs={"data-e2e":"description"}).text
+    except:
+        n_count += 1
+        description = "N/A"
     url += "#instructors"
     page = requests.get(url)
     soup = BeautifulSoup(page.text, 'html.parser')
-    instructor = soup.find('h3', attrs={"class": "instructor-name headline-3-text bold"}).text
-    provider = soup.find('h3', attrs={"class": "headline-4-text bold rc-Partner__title"}).text
-    return title, description, star, instructor, provider, students
+    try:
+        instructor = soup.find('h3', attrs={"class": "instructor-name headline-3-text bold"}).text.replace("Top Instructor", "")
+    except:
+        n_count += 1
+        instructor = "N/A"
+    try:
+        provider = soup.find('h3', attrs={"class": "headline-4-text bold rc-Partner__title"}).text
+    except:
+        n_count += 1
+        provider = "N/A"
+    if n_count > 3:
+        return None 
+    return title, description, star, instructor, provider, students, baseUrl + url_
 
-def get_course_info_by_page(page_no):
-    url = f"https://www.coursera.org/search?query=data%20science&page={page_no}&index=prod_all_launched_products_term_optimization_skills_test_for_precise_xdp_variant"
-    
+def get_course_info_by_page(page_no, course, visited_page):
+    course = "%20".join(course.split())
+    url = f"https://www.coursera.org/search?query={course}&"
+    if page_no > 1:
+        url += f"page={page_no}&index=prod_all_launched_products_term_optimization"
+    print(url)
     options = Options()
-    # options.add_argument("--headless")
+    options.add_argument("--headless")
     # initiating the webdriver. Parameter includes the path of the webdriver.
     driver = webdriver.Chrome(chrome_options=options, executable_path='./chromedriver') 
     driver.get(url) 
     
     # this is just to ensure that the page is loaded
-    time.sleep(2) 
+    time.sleep(10) 
     
     html = driver.page_source  
     # this renders the JS code and stores all
@@ -48,8 +79,15 @@ def get_course_info_by_page(page_no):
 
     course_details = []
     for div in all_divs:
-        details = get_course_info(div.get("href"))
-        course_details.append(details)
+        url = div.get("href")
+        if url in visited_page:
+            continue 
+        visited_page[url] = True
+        details = get_course_info(url)
+        
+        if details:
+            print(url)
+            course_details.append(details)
 
     driver.close()
 
