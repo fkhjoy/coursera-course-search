@@ -9,7 +9,7 @@ def search(request):
     except:
         total = 2
     data = []
-    print("#",course, "#", total)
+    # print("#",course, "#", total)
     visited_page = {}
     if len(course) > 0:
         for i in range(1, total+1):
