@@ -10,6 +10,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
   
 #url of the page we want to scrape
+
+
+
 for x in range(1, 3):
     url = f"https://www.coursera.org/search?query=data%20science&page={x}&index=prod_all_launched_products_term_optimization_skills_test_for_precise_xdp_variant"
     
