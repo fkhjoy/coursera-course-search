@@ -30,7 +30,7 @@
             <input type="text" name="total" placeholder="Total pages to search">
             <input type="submit" value="Search/Refresh">
         </form>
-        <a href="#" class="button">Download</a>
+        <a href="{% url 'get_csv' %}" class="button">Download</a>
         {% if data %}
             <table>
                 <thead>
