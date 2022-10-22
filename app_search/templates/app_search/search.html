@@ -24,7 +24,8 @@
     <body>
         <h1>Coursera Course Search</h1>
 
-        <form action="">
+        <form action="" method="post">
+            {% csrf_token %}
             <input type="text" name="search" placeholder="Search by course">
             <input type="text" name="total" placeholder="Total pages to search">
             <input type="submit" value="Search/Refresh">
@@ -45,7 +46,7 @@
                 <tbody>
                     {% for d in data %}
                     <tr>
-                        <td>{{ d.0 }}</td>
+                        <td><a href="{{d.6}}">{{ d.0 }}</a></td>
                         <td>{{ d.1 | slice:":65" }}....</td>
                         <td>{{ d.2 }}</td>
                         <td>{{ d.3 }}</td>

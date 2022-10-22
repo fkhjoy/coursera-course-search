@@ -35,8 +35,11 @@ def get_course_info(url_):
     try:
         description = soup.find('div', attrs={"data-e2e":"description"}).text
     except:
-        n_count += 1
-        description = "N/A"
+        try:
+            description = soup.find('div', attrs={"class":"content-inner"}).text
+        except:
+            n_count += 1
+            description = "N/A"
     url += "#instructors"
     page = requests.get(url)
     soup = BeautifulSoup(page.text, 'html.parser')
@@ -55,39 +58,44 @@ def get_course_info(url_):
     return title, description, star, instructor, provider, students, baseUrl + url_
 
 def get_course_info_by_page(page_no, course, visited_page):
-    course = "%20".join(course.split())
-    url = f"https://www.coursera.org/search?query={course}&"
-    if page_no > 1:
-        url += f"page={page_no}&index=prod_all_launched_products_term_optimization"
-    print(url)
+
     options = Options()
     options.add_argument("--headless")
     # initiating the webdriver. Parameter includes the path of the webdriver.
-    driver = webdriver.Chrome(chrome_options=options, executable_path='./chromedriver') 
-    driver.get(url) 
-    
-    # this is just to ensure that the page is loaded
-    time.sleep(10) 
-    
-    html = driver.page_source  
-    # this renders the JS code and stores all
-    # of the information in static HTML code.
-    
-    # Now, we could simply apply bs4 to html variable
-    soup = BeautifulSoup(html, "html.parser")
-    all_divs = soup.find_all('a', {"data-click-key": "search.search.click.search_card"})
+    driver = webdriver.Chrome(chrome_options=options, executable_path='/home/fkj/Devs/coursera-scrape/app_search/chromedriver')
 
+    course = "%20".join(course.split())
     course_details = []
-    for div in all_divs:
-        url = div.get("href")
-        if url in visited_page:
-            continue 
-        visited_page[url] = True
-        details = get_course_info(url)
+    for page in range(1, page_no+1):
+        url = f"https://www.coursera.org/search?query={course}&"
+        if page > 1:
+            url += f"page={page}&index=prod_all_launched_products_term_optimization"
+        print(url)
         
-        if details:
-            print(url)
-            course_details.append(details)
+        driver.get(url) 
+        
+        # this is just to ensure that the page is loaded
+        time.sleep(10) 
+        
+        html = driver.page_source  
+        # this renders the JS code and stores all
+        # of the information in static HTML code.
+        
+        # Now, we could simply apply bs4 to html variable
+        soup = BeautifulSoup(html, "html.parser")
+        all_divs = soup.find_all('a', {"data-click-key": "search.search.click.search_card"})
+
+        
+        for div in all_divs:
+            url = div.get("href")
+            if url in visited_page:
+                continue 
+            visited_page[url] = True
+            details = get_course_info(url)
+            
+            if details:
+                print(url)
+                course_details.append(details)
 
     driver.close()
 
