@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .utils import get_course_info_by_page
 import csv 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 
 from django.views.decorators.csrf import csrf_exempt
 
@@ -15,18 +15,20 @@ def search(request):
     try:
         total = int(request.POST.get('total'))
     except:
-        total = 2
+        total = 1
     data = []
     print("#",course, "#", total)
     visited_page = {}
     
+    # if course and len(course) > 0:
+    #     # data = get_course_info_by_page(total, course, visited_page)
+    #     for i in range(1, total+1):
+    #         try:
+    #             data += get_course_info_by_page(i, course, visited_page)
+    #         except:
+    #             break
     if course and len(course) > 0:
-        # data = get_course_info_by_page(total, course, visited_page)
-        for i in range(1, total+1):
-            try:
-                data += get_course_info_by_page(i, course, visited_page)
-            except:
-                break
+        data = get_course_info_by_page(total, course, visited_page)
 
     context = {
         "data":data,
@@ -37,6 +39,8 @@ def search(request):
 
 def get_csv(request):
     # Create the HttpResponse object with the appropriate CSV header.
+    if len(data) == 0:
+        return HttpResponseNotFound("Sorry, no Data")
     response = HttpResponse(
         content_type='text/csv',
         headers={'Content-Disposition': 'attachment; filename="course info.csv"'},
